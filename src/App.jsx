@@ -19,6 +19,7 @@ import {
 } from '@dnd-kit/sortable';
 
 import { CSS } from '@dnd-kit/utilities';
+import NoteModal from './components/NoteModal';
 
 const initialData = {
   Backlog: [],
@@ -58,6 +59,8 @@ const TaskItem = ({ task, onEdit, onDelete }) => {
   const [editedTask, setEditedTask] = useState(task);
   const menuRef = useRef(null);
   const buttonRef = useRef(null);
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+  const [note, setNote] = useState(task.note || '');
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -113,6 +116,11 @@ const TaskItem = ({ task, onEdit, onDelete }) => {
     }
   };
 
+  const handleNoteSave = (content) => {
+    setNote(content);
+    onEdit(task.id, { ...task, note: content });
+  };
+
   return (
     <>
       <div className="bg-gray-800 border border-gray-700 rounded-md p-4 group relative">
@@ -131,13 +139,36 @@ const TaskItem = ({ task, onEdit, onDelete }) => {
               <span className="text-gray-500">{task.category}</span>
             </div>
           </div>
-          <button
-            ref={buttonRef}
-            onPointerDown={handleMenuClick}
-            className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-white transition-opacity p-1"
-          >
-            ⋮
-          </button>
+          <div className="flex gap-2">
+            <button
+              onMouseDown={() => setIsNoteModalOpen(true)}
+              className="text-gray-400 hover:text-white p-1"
+              title="Edit Note"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-4 h-4"
+              >
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+            </button>
+            <button
+              ref={buttonRef}
+              onPointerDown={handleMenuClick}
+              className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-white transition-opacity p-1"
+            >
+              ⋮
+            </button>
+          </div>
         </div>
 
         {showMenu && (
@@ -242,6 +273,13 @@ const TaskItem = ({ task, onEdit, onDelete }) => {
           </button>
         </div>
       </Modal>
+
+      <NoteModal
+        isOpen={isNoteModalOpen}
+        onClose={() => setIsNoteModalOpen(false)}
+        note={note}
+        onSave={handleNoteSave}
+      />
     </>
   );
 };
